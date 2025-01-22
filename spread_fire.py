@@ -17,7 +17,8 @@ def initialize_forest(grid_size=30, p_tree=0.6):
                 grid[i][j] = 1
 
     # Set the center tree on fire
-    grid[grid_size // 2][grid_size // 2] = 2
+    center = grid_size // 2
+    grid[center][center] = 2
 
     return grid
 
@@ -25,22 +26,15 @@ def spread_fire(grid):
     """Update the forest grid based on fire spreading rules."""
     grid_size = len(grid)
     update_grid = copy.deepcopy(grid)
-    
+
     for i in range(grid_size):
         for j in range(grid_size):
             if grid[i][j] == 1:
-                # Check neighbors while avoiding index out of range errors
-                neighbors = []
-                if i > 0:
-                    neighbors.append(grid[i - 1][j])  # Up
-                if i < grid_size - 1:
-                    neighbors.append(grid[i + 1][j])  # Down
-                if j > 0:
-                    neighbors.append(grid[i][j - 1])  # Left
-                if j < grid_size - 1:
-                    neighbors.append(grid[i][j + 1])  # Right
-                
-                if 2 in neighbors:
+                # Check all valid neighbors
+                if (i > 0 and grid[i - 1][j] == 2) or \
+                   (i < grid_size - 1 and grid[i + 1][j] == 2) or \
+                   (j > 0 and grid[i][j - 1] == 2) or \
+                   (j < grid_size - 1 and grid[i][j + 1] == 2):
                     update_grid[i][j] = 2
 
     return update_grid
@@ -53,13 +47,15 @@ grid = initialize_forest(grid_size, p_tree)
 
 # Run the simulation
 fig, ax = plt.subplots()
-for i in range(100):
+for step in range(100):
     update_grid = spread_fire(grid)
     if update_grid == grid:
         break
     grid = update_grid
     ax.imshow(grid, cmap='YlOrRd', vmin=0, vmax=2)
-    ax.set_title(f'Step {i}')
+    ax.set_title(f'Step {step}')
     display(fig)
     clear_output(wait=True)
     plt.pause(0.01)
+
+plt.show()
